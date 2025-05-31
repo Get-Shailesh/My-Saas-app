@@ -7,24 +7,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { cn, getSubjectColor } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
-import { getSubjectColor } from "@/lib/utils";
 
 interface CompanionsListProps {
   title: string;
   companions?: Companion[];
   classNames?: string;
 }
+
 const CompanionsList = ({
   title,
   companions,
   classNames,
 }: CompanionsListProps) => {
+  const uniqueCompanions = companions
+    ? companions.filter(
+        (companion, index, self) =>
+          self.findIndex((c) => c.id === companion.id) === index
+      )
+    : [];
   return (
     <article className={cn("companion-list", classNames)}>
-      <h2 className="font-bold text-3xl">Recent Sessions</h2>
+      <h2 className="font-bold text-3xl">{title}</h2>
+
       <Table>
         <TableHeader>
           <TableRow>
@@ -34,7 +41,7 @@ const CompanionsList = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {companions?.map(({ id, subject, name, topic, duration }) => (
+          {uniqueCompanions.map(({ id, subject, name, topic, duration }) => (
             <TableRow key={id}>
               <TableCell>
                 <Link href={`/companions/${id}`}>
@@ -62,7 +69,7 @@ const CompanionsList = ({
                   {subject}
                 </div>
                 <div
-                  className="flex items-center justify-center rounded-lg w-fit p-2  md:hidden"
+                  className="flex items-center justify-center rounded-lg w-fit p-2 md:hidden"
                   style={{ backgroundColor: getSubjectColor(subject) }}
                 >
                   <Image
@@ -75,7 +82,7 @@ const CompanionsList = ({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2 w-full justify-end">
-                  <p className="text-2xl ">
+                  <p className="text-2xl">
                     {duration} <span className="max-md:hidden">mins</span>
                   </p>
                   <Image
